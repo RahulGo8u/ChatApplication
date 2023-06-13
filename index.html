@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        .chat-window {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .sender {
+            font-weight: bold;
+        }
+
+        .receiver {
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Chat Application</h2>
+        <div class="chat-window" id="chatWindow"></div>
+        <hr>
+        <div>
+            <label for="sender">Sender:</label>
+            <select id="sender">
+                <option value="Alice">Alice</option>
+                <option value="Bob">Bob</option>
+                <option value="Charlie">Charlie</option>
+            </select>
+        </div>
+        <br>
+        <div>
+            <label for="receiver">Receiver:</label>
+            <select id="receiver">
+                <option value="Alice">Alice</option>
+                <option value="Bob">Bob</option>
+                <option value="Charlie">Charlie</option>
+            </select>
+        </div>
+        <br>
+        <div>
+            <label for="message">Message:</label>
+            <input type="text" id="message">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>// Function to send the message and reset the textbox
+        var apiUrl = 'https://localhost:7189';
+        function sendMessage() {
+            var sender = document.getElementById("sender").value;
+            var receiver = document.getElementById("receiver").value;
+            var message = document.getElementById("message").value;
+            // Code to send the message using AJAX or Fetch API
+            // Replace the following line with your actual API call
+            // You can use the Fetch API or any AJAX library like jQuery
+
+            // Example using Fetch API
+            fetch(apiUrl + '/api/chat/savechatmessage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ Sender: sender, Receiver: receiver, Content: message })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        document.getElementById("message").value = ""; // Clear the textbox
+                        loadChatHistory(); // Reload the chat history
+                    } else {
+                        console.log("Error sending message");
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
+
+    // Function to load the chat history
+    function loadChatHistory() {
+      // Code to load the chat history using AJAX or Fetch API
+      // Replace the following line with your actual API call
+      // You can use the Fetch API or any AJAX library like jQuery
+
+      // Example using Fetch API
+        fetch(apiUrl + '/api/chat/getchathistory')
+        .then(function (response) {
+          if (response.ok) {
+            return response.json();
+          } else {
+            console.log("Error loading chat history");
+          }
+        })
+        .then(function (chatHistory) {
+          var chatWindow = document.getElementById("chatWindow");
+          chatWindow.innerHTML = ""; // Clear the chat window
+
+          // Loop through the chat history and display each message
+          chatHistory.forEach(function (message) {
+            var messageElement = document.createElement("div");
+            messageElement.classList.add("message");
+
+            var senderElement = document.createElement("span");
+            senderElement.classList.add("sender");
+            senderElement.innerText = message.sender + ": ";
+
+            var messageTextElement = document.createElement("span");
+            messageTextElement.innerText = message.content;
+
+            messageElement.appendChild(senderElement);
+            messageElement.appendChild(messageTextElement);
+            chatWindow.appendChild(messageElement);
+          });
+
+          // Scroll to the bottom of the chat window
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
+
+    // Load the initial chat history when the page loads
+        loadChatHistory();
+        setInterval(loadChatHistory, 1000);
+    </script>
+</body>
+</html>
